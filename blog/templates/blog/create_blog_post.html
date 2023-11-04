@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{blog_form.as_p}}
+    {{photo_form.as_p}}
+    <button type="submit">Publier</button>
+
+
+</form>
+
+{% endblock content %}
