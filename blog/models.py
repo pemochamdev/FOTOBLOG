@@ -60,7 +60,14 @@ class Blog(models.Model):
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True
+    )
+    contributors = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through='BlogContributor',
+        related_name = 'contributions',
+    
     )
     word_count = models.IntegerField(null=True)
     starred = models.BooleanField(default=False)
@@ -75,3 +82,13 @@ class Blog(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.word_count = self._get_word_count()
+
+
+
+class BlogContributor(models.Model):
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    contribution = models.CharField(max_length=255, blank=True)
+    
+    class Meta:
+        unique_together = ('contributor', 'blog')

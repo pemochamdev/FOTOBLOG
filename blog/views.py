@@ -1,13 +1,14 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.forms import formset_factory
 
 from blog.models import Photo, Blog
-from blog.forms import PhotoForm, BlogForm, DeleteBlogForm
+from blog.forms import PhotoForm, BlogForm, DeleteBlogForm, FollowUserForm
 
 
 @login_required
+@permission_required('blog.add_photo', raise_exception=False)
 def home(request):
     photos = Photo.objects.all().order_by('-date_created')
     blogs = Blog.objects.all().order_by('-date_created')
@@ -58,7 +59,8 @@ def blog_and_photo_upload(request):
             blog.author = request.user
             blog.date_created = timezone.now()
             blog.photo = photo
-            blog.save()            
+            blog.save()
+            blog.contributors.add(request.user, through_defaults={'contribution': 'Auteur principal'})     
             return redirect('home')
     context = {
         'blog_form':blog_form,
@@ -122,3 +124,18 @@ def create_multiple_photos(request):
         'formset':formset,
     }
     return render(request, 'blog/create_multiple_photos.html', context)
+
+
+def follow_users(request):
+    form  = FollowUserForm(instance=request.user)
+    if request.method=='POST':
+        form = FollowUserForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+
+            return redirect('home')
+    
+    context = {
+        'form':form,
+    }
+    return render(request, 'blog/follow_users_form.html', context)

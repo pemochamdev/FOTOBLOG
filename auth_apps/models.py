@@ -15,4 +15,10 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=15, choices=ROLE_CHOICES)
     profile_photo = models.ImageField(upload_to='profile')
+    follows = models.ManyToManyField(
+        'self',
+        limit_choices_to={'role': CREATOR},
+        symmetrical=False,
+        verbose_name='suit',
+    )
     

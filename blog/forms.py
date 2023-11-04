@@ -1,7 +1,9 @@
+from django.contrib.auth import get_user_model
 from django import forms
 
 from blog.models import Photo, Blog
 
+User = get_user_model()
 class PhotoForm(forms.ModelForm):
     class Meta:
         model = Photo
@@ -24,3 +26,10 @@ class DeleteBlogForm(forms.Form):
         widget=forms.HiddenInput, 
         initial=True
     )
+
+
+class FollowUserForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ('follows',)
